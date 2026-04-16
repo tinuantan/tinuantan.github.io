@@ -326,9 +326,10 @@ async function fetchData(){
 
 function init(){
   const cc=cols(carrierData[0]||{});
-  const SKIP=/^(total|all|grand|aggregate|others|other)$/i;
-  const filtered=carrierData.filter(r=>{const y=parseInt(r[cc.year]);return y>=2020&&y<=2025&&!SKIP.test((r[cc.carrier]||'').trim());});
+  function realAirline(n){if(!n||!n.trim())return false;const l=n.trim().toLowerCase();return !l.includes('total')&&!l.includes('grand')&&!l.includes('aggregate')&&l!=='all'&&l!=='others'&&l!=='other';}
+  const filtered=carrierData.filter(r=>{const y=parseInt(r[cc.year]);return y>=2020&&y<=2025&&realAirline(r[cc.carrier]);});
   const airlines=[...new Set(filtered.map(r=>r[cc.carrier]).filter(Boolean))].sort();
+  console.log('Carriers found:',airlines);
 
   // Airline trend select
   const sel=document.getElementById('airline-select');
@@ -420,8 +421,8 @@ function selectYear(y){
 
 function drawMarketShare(year){
   const cc=cols(carrierData[0]||{});
-  const SKIP=/^(total|all|grand|aggregate)$/i;
-  const rows=carrierData.filter(r=>parseInt(r[cc.year])===year&&!SKIP.test((r[cc.carrier]||'').trim()));
+  function realAirline2(n){if(!n||!n.trim())return false;const l=n.trim().toLowerCase();return !l.includes('total')&&!l.includes('grand')&&!l.includes('aggregate')&&l!=='all'&&l!=='others'&&l!=='other';}
+  const rows=carrierData.filter(r=>parseInt(r[cc.year])===year&&realAirline2(r[cc.carrier]));
   const byC={};
   rows.forEach(r=>{const c=r[cc.carrier];if(c)byC[c]=(byC[c]||0)+(parseInt(r[cc.pax])||0);});
   const sorted=Object.entries(byC).sort((a,b)=>b[1]-a[1]);
