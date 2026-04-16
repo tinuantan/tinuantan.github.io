@@ -326,7 +326,8 @@ async function fetchData(){
 
 function init(){
   const cc=cols(carrierData[0]||{});
-  const filtered=carrierData.filter(r=>{const y=parseInt(r[cc.year]);return y>=2020&&y<=2025;});
+  const SKIP=/^(total|all|grand|aggregate|others|other)$/i;
+  const filtered=carrierData.filter(r=>{const y=parseInt(r[cc.year]);return y>=2020&&y<=2025&&!SKIP.test((r[cc.carrier]||'').trim());});
   const airlines=[...new Set(filtered.map(r=>r[cc.carrier]).filter(Boolean))].sort();
 
   // Airline trend select
@@ -419,7 +420,8 @@ function selectYear(y){
 
 function drawMarketShare(year){
   const cc=cols(carrierData[0]||{});
-  const rows=carrierData.filter(r=>parseInt(r[cc.year])===year);
+  const SKIP=/^(total|all|grand|aggregate)$/i;
+  const rows=carrierData.filter(r=>parseInt(r[cc.year])===year&&!SKIP.test((r[cc.carrier]||'').trim()));
   const byC={};
   rows.forEach(r=>{const c=r[cc.carrier];if(c)byC[c]=(byC[c]||0)+(parseInt(r[cc.pax])||0);});
   const sorted=Object.entries(byC).sort((a,b)=>b[1]-a[1]);
