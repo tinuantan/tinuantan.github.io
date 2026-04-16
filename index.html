@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Air Traffic — 2020 to 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --text: #f0f4ff;
+    --muted: #6b7a99;
+    --green: #00e5a0;
+    --yellow: #ffd166;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 48px 0 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-tag::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+
+  .header-meta {
+    margin-top: 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .meta-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--border-hover); }
+
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.yellow { color: var(--yellow); }
+  .stat-value.orange { color: var(--accent2); }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* SECTIONS */
+  .sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 28px 0 0;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .panel-desc {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .panel-body { padding: 20px 22px; }
+
+  /* CONTROLS */
+  .control-group {
+    margin-bottom: 18px;
+  }
+
+  .control-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  select, input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7a99' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+  }
+
+  select:focus, input[type="text"]:focus {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.04);
+  }
+
+  select option {
+    background: #1a2035;
+    color: var(--text);
+  }
+
+  /* CHART */
+  .chart-wrap {
+    position: relative;
+    height: 260px;
+    margin-top: 4px;
+  }
+
+  .no-data {
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .no-data-icon {
+    font-size: 28px;
+    opacity: 0.4;
+  }
+
+  /* SEARCH RESULTS */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 18px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .search-input {
+    padding-left: 32px !important;
+  }
+
+  .suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: #1a2035;
+    border: 1px solid var(--border-hover);
+    border-radius: 6px;
+    overflow: hidden;
+    z-index: 100;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .suggestion-item {
+    padding: 9px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .suggestion-item:hover {
+    background: rgba(0,212,255,0.08);
+    color: var(--accent);
+  }
+
+  .suggestion-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* CITY RESULT */
+  .city-result {
+    margin-top: 4px;
+  }
+
+  .city-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .city-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+
+  .city-stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 5px;
+  }
+
+  .city-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top: 40px;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+    gap: 12px;
+  }
+
+  .footer-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .footer-text a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .footer-text a:hover { text-decoration: underline; }
+
+  /* LOADING STATE */
+  .loading-bar {
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .loading-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 2px;
+    animation: loadSlide 1.2s ease-in-out infinite;
+    transform-origin: left;
+  }
+
+  @keyframes loadSlide {
+    0% { width: 0%; margin-left: 0; }
+    50% { width: 60%; }
+    100% { width: 0%; margin-left: 100%; }
+  }
+
+  .loading-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    padding: 12px;
+  }
+
+  /* AIRLINE TAG */
+  .airline-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 4px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  /* TREND BADGE */
+  .trend-up {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 4px;
+    padding: 3px 8px;
+  }
+
+  .trend-down {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: rgba(255,107,53,0.08);
+    border: 1px solid rgba(255,107,53,0.2);
+    border-radius: 4px;
+    padding: 3px 8px;
+  }
+
+  @media (max-width: 720px) {
+    .sections { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-tag">India Aviation Intelligence</div>
+    <h1>Air Traffic<br><span>2020 — 2025</span></h1>
+    <p class="header-sub">Track domestic airline performance and city-level passenger trends across India. Data sourced from DGCA via open datasets.</p>
+    <div class="header-meta">
+      <span class="meta-pill">Source: DGCA India</span>
+      <span class="meta-pill">Domestic Routes</span>
+      <span class="meta-pill" id="last-updated">Loading data...</span>
+    </div>
+  </header>
+
+  <!-- STATS ROW -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Carriers</div>
+      <div class="stat-value accent" id="stat-carriers">—</div>
+      <div class="stat-sub">Domestic scheduled</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Cities Covered</div>
+      <div class="stat-value green" id="stat-cities">—</div>
+      <div class="stat-sub">In dataset</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">2024 Passengers</div>
+      <div class="stat-value yellow" id="stat-pax">—</div>
+      <div class="stat-sub">Latest full year</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">vs 2020</div>
+      <div class="stat-value orange" id="stat-growth">—</div>
+      <div class="stat-sub">5-year growth</div>
+    </div>
+  </div>
+
+  <!-- TWO PANELS -->
+  <div class="sections">
+
+    <!-- AIRLINE PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Airline Traffic Trend</div>
+          <div class="panel-desc">Monthly passengers by carrier, 2020–2025</div>
+        </div>
+        <span class="airline-tag" id="selected-airline-tag">All</span>
+      </div>
+      <div class="panel-body">
+        <div class="control-group">
+          <label class="control-label">Select Airline</label>
+          <select id="airline-select">
+            <option value="">Loading airlines...</option>
+          </select>
+        </div>
+        <div id="airline-chart-container">
+          <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+          <div class="loading-text">Fetching DGCA data...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CITY PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">City Air Traffic</div>
+          <div class="panel-desc">Search any city to see passenger growth</div>
+        </div>
+        <span id="city-trend-badge"></span>
+      </div>
+      <div class="panel-body">
+        <div class="control-group">
+          <label class="control-label">Search City</label>
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="city-search" class="search-input" placeholder="e.g. Mumbai, Delhi, Chennai..." autocomplete="off">
+            <div class="suggestions" id="suggestions" style="display:none;"></div>
+          </div>
+        </div>
+        <div id="city-chart-container">
+          <div class="no-data">
+            <div class="no-data-icon">✈</div>
+            <span>Search a city above to begin</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-text">Data: <a href="https://github.com/Vonter/india-aviation-traffic" target="_blank">Vonter/india-aviation-traffic</a> · DGCA India · ODbL License</span>
+    <span class="footer-text">Built by <a href="https://github.com/tinuantan" target="_blank">tinuantan</a></span>
+  </footer>
+
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+const CARRIER_URL = "https://raw.githubusercontent.com/Vonter/india-aviation-traffic/main/aggregated/domestic/carrier.csv";
+const CITY_URL    = "https://raw.githubusercontent.com/Vonter/india-aviation-traffic/main/aggregated/domestic/city.csv";
+
+// ─── GLOBALS ────────────────────────────────────────────────────────────────
+let carrierData = [], cityData = [];
+let airlineChart = null, cityChart = null;
+
+// ─── CHART DEFAULTS ──────────────────────────────────────────────────────────
+Chart.defaults.color = '#6b7a99';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 10;
+
+// ─── CSV PARSER ──────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g,''));
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    return obj;
+  });
+}
+
+// ─── FETCH DATA ───────────────────────────────────────────────────────────────
+async function fetchData() {
+  try {
+    const [cRes, ciRes] = await Promise.all([fetch(CARRIER_URL), fetch(CITY_URL)]);
+    const [cText, ciText] = await Promise.all([cRes.text(), ciRes.text()]);
+    carrierData = parseCSV(cText);
+    cityData    = parseCSV(ciText);
+    processData();
+  } catch(e) {
+    console.error(e);
+    showError();
+  }
+}
+
+// ─── DETECT COLUMN NAMES ─────────────────────────────────────────────────────
+function detectCols(row) {
+  const keys = Object.keys(row);
+  const yearKey = keys.find(k => /year/i.test(k));
+  const monthKey = keys.find(k => /month/i.test(k));
+  const paxKey = keys.find(k => /passenger/i.test(k) && !/km/i.test(k) && !/load/i.test(k));
+  const carrierKey = keys.find(k => /airline|carrier/i.test(k));
+  const cityKey = keys.find(k => /city/i.test(k) && /1|origin|depart/i.test(k)) || keys.find(k => /city/i.test(k));
+  return { yearKey, monthKey, paxKey, carrierKey, cityKey };
+}
+
+// ─── PROCESS DATA ────────────────────────────────────────────────────────────
+function processData() {
+  const cols = detectCols(carrierData[0] || {});
+
+  // Filter 2020-2025
+  const filtered = carrierData.filter(r => {
+    const y = parseInt(r[cols.yearKey]);
+    return y >= 2020 && y <= 2025;
+  });
+
+  // Build airlines list
+  const airlines = [...new Set(filtered.map(r => r[cols.carrierKey]).filter(Boolean))].sort();
+
+  // Populate select
+  const sel = document.getElementById('airline-select');
+  sel.innerHTML = airlines.map(a => `<option value="${a}">${a}</option>`).join('');
+  sel.addEventListener('change', () => drawAirlineChart(sel.value));
+
+  // Build cities list
+  const cityCols = detectCols(cityData[0] || {});
+  const allCities = [...new Set(cityData.map(r => r[cityCols.cityKey]).filter(Boolean))].sort();
+
+  // Stats
+  const y2024 = filtered.filter(r => parseInt(r[cols.yearKey]) === 2024);
+  const y2020 = filtered.filter(r => parseInt(r[cols.yearKey]) === 2020);
+  const pax2024 = y2024.reduce((s,r) => s + (parseInt(r[cols.paxKey]) || 0), 0);
+  const pax2020 = y2020.reduce((s,r) => s + (parseInt(r[cols.paxKey]) || 0), 0);
+  const growth = pax2020 > 0 ? ((pax2024 - pax2020) / pax2020 * 100).toFixed(0) : 'N/A';
+
+  document.getElementById('stat-carriers').textContent = airlines.length;
+  document.getElementById('stat-cities').textContent = allCities.length;
+  document.getElementById('stat-pax').textContent = pax2024 > 0 ? formatM(pax2024) : 'N/A';
+  document.getElementById('stat-growth').textContent = growth !== 'N/A' ? `+${growth}%` : 'N/A';
+  document.getElementById('last-updated').textContent = 'Updated 2025';
+
+  // Draw first airline
+  if(airlines.length) drawAirlineChart(airlines[0]);
+
+  // City search
+  setupCitySearch(allCities, cityCols);
+}
+
+// ─── FORMAT HELPERS ──────────────────────────────────────────────────────────
+function formatM(n) {
+  if(n >= 1e7) return (n/1e7).toFixed(1) + 'Cr';
+  if(n >= 1e5) return (n/1e5).toFixed(1) + 'L';
+  return n.toLocaleString('en-IN');
+}
+
+// ─── AIRLINE CHART ────────────────────────────────────────────────────────────
+function drawAirlineChart(airline) {
+  const cols = detectCols(carrierData[0] || {});
+  document.getElementById('selected-airline-tag').textContent = airline;
+
+  const rows = carrierData.filter(r => {
+    const y = parseInt(r[cols.yearKey]);
+    return r[cols.carrierKey] === airline && y >= 2020 && y <= 2025;
+  });
+
+  // Aggregate by year
+  const byYear = {};
+  for(let y = 2020; y <= 2025; y++) byYear[y] = 0;
+  rows.forEach(r => {
+    const y = parseInt(r[cols.yearKey]);
+    if(byYear[y] !== undefined) byYear[y] += parseInt(r[cols.paxKey]) || 0;
+  });
+
+  const labels = Object.keys(byYear);
+  const values = Object.values(byYear);
+
+  const container = document.getElementById('airline-chart-container');
+  container.innerHTML = '<div class="chart-wrap"><canvas id="airlineChart" role="img" aria-label="Bar chart of annual passengers for selected airline 2020 to 2025"></canvas></div>';
+
+  if(airlineChart) airlineChart.destroy();
+
+  airlineChart = new Chart(document.getElementById('airlineChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Passengers',
+        data: values,
+        backgroundColor: labels.map((y,i) => {
+          if(parseInt(y) <= 2021) return 'rgba(255,107,53,0.7)';
+          if(parseInt(y) === 2022) return 'rgba(255,209,102,0.7)';
+          return 'rgba(0,212,255,0.75)';
+        }),
+        borderColor: labels.map(y => {
+          if(parseInt(y) <= 2021) return '#ff6b35';
+          if(parseInt(y) === 2022) return '#ffd166';
+          return '#00d4ff';
+        }),
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + formatM(ctx.parsed.y) + ' passengers'
+          },
+          backgroundColor: '#1a2035',
+          borderColor: 'rgba(0,212,255,0.3)',
+          borderWidth: 1,
+          titleColor: '#00d4ff',
+          bodyColor: '#f0f4ff',
+          padding: 10,
+        }
+      },
+      scales: {
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: {
+            callback: v => formatM(v),
+            color: '#6b7a99',
+          },
+          border: { color: 'transparent' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#6b7a99' },
+          border: { color: 'rgba(255,255,255,0.08)' }
+        }
+      }
+    }
+  });
+}
+
+// ─── CITY SEARCH ──────────────────────────────────────────────────────────────
+function setupCitySearch(allCities, cityCols) {
+  const input = document.getElementById('city-search');
+  const suggestBox = document.getElementById('suggestions');
+
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    if(!q) { suggestBox.style.display = 'none'; return; }
+    const matches = allCities.filter(c => c.toLowerCase().includes(q)).slice(0, 8);
+    if(!matches.length) { suggestBox.style.display = 'none'; return; }
+    suggestBox.innerHTML = matches.map(c =>
+      `<div class="suggestion-item" onclick="selectCity('${c.replace(/'/g,"\\'")}')"><span class="suggestion-dot"></span>${c}</div>`
+    ).join('');
+    suggestBox.style.display = 'block';
+  });
+
+  document.addEventListener('click', e => {
+    if(!e.target.closest('.search-wrap')) suggestBox.style.display = 'none';
+  });
+}
+
+function selectCity(city) {
+  document.getElementById('city-search').value = city;
+  document.getElementById('suggestions').style.display = 'none';
+  drawCityChart(city);
+}
+
+function drawCityChart(city) {
+  const cityCols = detectCols(cityData[0] || {});
+  const rows = cityData.filter(r => {
+    const y = parseInt(r[cityCols.yearKey]);
+    return r[cityCols.cityKey] === city && y >= 2020 && y <= 2025;
+  });
+
+  const byYear = {};
+  for(let y = 2020; y <= 2025; y++) byYear[y] = 0;
+  rows.forEach(r => {
+    const y = parseInt(r[cityCols.yearKey]);
+    const paxKey = Object.keys(r).find(k => /passenger/i.test(k) && !/km/i.test(k) && !/load/i.test(k));
+    if(byYear[y] !== undefined && paxKey) byYear[y] += parseInt(r[paxKey]) || 0;
+  });
+
+  const labels = Object.keys(byYear);
+  const values = Object.values(byYear);
+
+  // Trend badge
+  const first = values.find(v => v > 0) || 0;
+  const last  = [...values].reverse().find(v => v > 0) || 0;
+  const trendPct = first > 0 ? ((last - first) / first * 100).toFixed(0) : null;
+  const badge = document.getElementById('city-trend-badge');
+  if(trendPct !== null) {
+    badge.className = parseInt(trendPct) >= 0 ? 'trend-up' : 'trend-down';
+    badge.textContent = (parseInt(trendPct) >= 0 ? '↑' : '↓') + ' ' + Math.abs(trendPct) + '%';
+  }
+
+  // Summary stats
+  const total = values.reduce((a,b) => a+b, 0);
+  const peak = Math.max(...values);
+  const peakYear = labels[values.indexOf(peak)];
+
+  const container = document.getElementById('city-chart-container');
+  container.innerHTML = `
+    <div class="city-result">
+      <div class="city-summary">
+        <div class="city-stat">
+          <div class="city-stat-label">Peak year</div>
+          <div class="city-stat-value">${peakYear}</div>
+        </div>
+        <div class="city-stat">
+          <div class="city-stat-label">Peak passengers</div>
+          <div class="city-stat-value">${formatM(peak)}</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="cityChart" role="img" aria-label="Line chart of annual passengers for ${city} 2020 to 2025"></canvas></div>
+    </div>
+  `;
+
+  if(cityChart) cityChart.destroy();
+
+  cityChart = new Chart(document.getElementById('cityChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: city,
+        data: values,
+        borderColor: '#00e5a0',
+        backgroundColor: 'rgba(0,229,160,0.07)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 5,
+        pointBackgroundColor: '#00e5a0',
+        pointBorderColor: '#0a0e1a',
+        pointBorderWidth: 2,
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + formatM(ctx.parsed.y) + ' passengers'
+          },
+          backgroundColor: '#1a2035',
+          borderColor: 'rgba(0,229,160,0.3)',
+          borderWidth: 1,
+          titleColor: '#00e5a0',
+          bodyColor: '#f0f4ff',
+          padding: 10,
+        }
+      },
+      scales: {
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { callback: v => formatM(v), color: '#6b7a99' },
+          border: { color: 'transparent' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#6b7a99' },
+          border: { color: 'rgba(255,255,255,0.08)' }
+        }
+      }
+    }
+  });
+}
+
+// ─── ERROR ──────────────────────────────────────────────────────────────────
+function showError() {
+  document.getElementById('airline-chart-container').innerHTML = `
+    <div class="no-data">
+      <div class="no-data-icon">⚠</div>
+      <span>Could not load data. Check console.</span>
+    </div>`;
+  document.getElementById('last-updated').textContent = 'Data load failed';
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────────────
+fetchData();
+</script>
+</body>
+</html>
